@@ -1,30 +1,35 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import CartContext from "../../store/cart-context";
-import CartIcon from "../Cart/CartIcon"
+import CartIcon from "../Cart/CartIcon";
 import classes from "./HeaderCartButton.module.css";
 
 const HeaderCartButton = (props) => {
-    const cartCtx = useContext(CartContext);
+  const [clickedBtn, setClickedBtn] = useState(false);
+  const cartCtx = useContext(CartContext);
+  const { items } = cartCtx;
 
-    const numberOfCartItems = cartCtx.items.reduce((curNumber, item)=>{
-    console.log('curNumber', curNumber + item.amount);
+  const numberOfCartItems = items.reduce((curNumber, item) => {
+    return curNumber + item.amount;
+  }, 0);
+  const btnClasses = `${classes.button} ${clickedBtn && classes.bump}`;
 
-        return curNumber + item.amount
-    },0)
-    console.log('numberOfCartItems', numberOfCartItems);
+  useEffect(() => {
+    if (items.length === 0) {
+      return;
+    }
+    setClickedBtn(true);
+    const timer = setTimeout(() => setClickedBtn(false), 300);
+    return () => clearTimeout(timer);
+   }, [items]);
 
   return (
-    <button className={classes.button} onClick={props.onClick}>
-        <span className={classes.icon}>
-            <CartIcon/>
-        </span>
-        <span>
-            Your cart
-        </span>
-        <span className={classes.badge}>
-            {numberOfCartItems}
-        </span>
+    <button className={btnClasses} onClick={props.onClick}>
+      <span className={classes.icon}>
+        <CartIcon />
+      </span>
+      <span>Your cart</span>
+      <span className={classes.badge}>{numberOfCartItems}</span>
     </button>
-  )
+  );
 };
 export default HeaderCartButton;
